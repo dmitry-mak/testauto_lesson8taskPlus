@@ -11,7 +11,13 @@ image: Ubuntu2004
 # Установка зависимостей
 install:
   # Обновление пакетов и установка необходимых инструментов
-  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk docker.io
+  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk curl
+
+  - sh: |
+      curl -fsSL https://get.docker.com -o get-docker.sh
+      sudo sh get-docker.sh
+      sudo usermod -aG docker  $USER
+      newgrp docker
 
   # Запуск Docker Compose для базы данных
   - name: Container start
