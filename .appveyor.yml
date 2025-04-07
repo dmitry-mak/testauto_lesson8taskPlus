@@ -1,0 +1,44 @@
+version: 1.0.{build}
+
+# Триггеры
+branches:
+  only:
+    - main
+
+# Операционная система
+image: Ubuntu2004
+
+# Установка зависимостей
+install:
+  # Обновление пакетов и установка необходимых инструментов
+  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk docker.io
+
+  # Запуск Docker Compose для базы данных
+  - name: Container start
+    sh: |
+      sudo systemctl start docker
+      docker-compose up -d
+
+  # Ожидание полного запуска контейнера
+  - name: Waiting for container start
+    sh: sleep 30
+
+  # Выдача прав на gradlew
+  - chmod +x gradlew
+
+# Скрипт сборки
+build_script:
+  # Запуск SUT (системы под тестом)
+  - sh: java -jar ./artifacts/app-deadline.jar &
+
+  # Запуск тестов через Gradle
+  - sh: ./gradlew test --info -Dselenide.headless=true
+
+# Кэширование зависимостей
+cache:
+  - .gradle -> .gradle
+
+# Отправка артефактов (если нужны)
+artifacts:
+  - path: build/reports/tests/test
+    name: test-reports
