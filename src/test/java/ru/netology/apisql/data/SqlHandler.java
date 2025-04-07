@@ -40,27 +40,26 @@ public class SqlHandler {
         }
     }
 
-//    @SneakyThrows
-//    public static User getFirstUser() {
-//        var userSql = "SELECT * FROM users;";
-//        try (var connection = getConnection()) {
-//            return runner.query(connection, userSql, new BeanHandler<>(User.class));
-//        }
-//    }
+    @SneakyThrows
+    public static DataHandler.User getFirstUser() {
+        var userSql = "SELECT * FROM users;";
+        try (var connection = getConnection()) {
+            return runner.query(connection, userSql, new BeanHandler<>(DataHandler.User.class));
+        }
+    }
 
-//    @SneakyThrows
-//    public static List<User> getAllUsers() {
-//        var userSql = "SELECT * FROM users;";
-//        try (var connection = getConnection()) {
-//            return runner.query(connection, userSql, new BeanListHandler<>(User.class));
-//        }
-//    }
+    @SneakyThrows
+    public static List<DataHandler.User> getAllUsers() {
+        var userSql = "SELECT * FROM users;";
+        try (var connection = getConnection()) {
+            return runner.query(connection, userSql, new BeanListHandler<>(DataHandler.User.class));
+        }
+    }
 
     @SneakyThrows
     public static String getVerificationCode() {
         var codeSql = "SELECT code FROM auth_codes ORDER BY created DESC LIMIT 1;";
         var connection = getConnection();
-//        var code = runner.query(connection, codeSql, new ScalarHandler<>());
 
         return runner.query(connection, codeSql, new ScalarHandler<>());
     }
@@ -81,7 +80,7 @@ public class SqlHandler {
     }
 
     @SneakyThrows
-    public static void cleanAuthCodesTable(){
+    public static void cleanAuthCodesTable() {
         var deleteAuthCodesSql = "DELETE FROM auth_codes;";
         try (var connection = getConnection();) {
             runner.update(connection, deleteAuthCodesSql);
@@ -113,7 +112,7 @@ public class SqlHandler {
     }
 
     @SneakyThrows
-    public static long getTransactionsCount(){
+    public static long getTransactionsCount() {
         var countSql = "SELECT COUNT(*) FROM card_transactions;";
         try (var connection = getConnection();) {
             return runner.query(connection, countSql, new ScalarHandler<>());
@@ -121,11 +120,18 @@ public class SqlHandler {
     }
 
     @SneakyThrows
-    public static int getLastTransactionAmount(){
+    public static int getLastTransactionAmount() {
         var sqlTransactionAmount = "SELECT amount_in_kopecks FROM card_transactions ORDER BY created DESC LIMIT 1;";
         try (var connection = getConnection();) {
             return runner.query(connection, sqlTransactionAmount, new ScalarHandler<>());
         }
     }
 
+    @SneakyThrows
+    public static List<DataHandler.CardsInfo> getUserCards() {
+        var sqlUserCards = "SELECT id, number, balance_in_kopecks / 100 AS balance FROM cards;";
+        try (var connection = getConnection()) {
+            return runner.query(connection, sqlUserCards, new BeanListHandler<>(DataHandler.CardsInfo.class));
+        }
+    }
 }

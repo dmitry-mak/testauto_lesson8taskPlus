@@ -2,6 +2,7 @@ package ru.netology.apisql.data;
 
 import io.restassured.response.Response;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,11 @@ import static io.restassured.RestAssured.given;
 
 public class ApiHandler {
 
-    public static final String BASE_URL = "http://localhost:9999/api";
+    private static final String BASE_URL = "http://localhost:9999/api";
+    private static final String LOGIN = "/auth";
+    private static final String VERIFICATION = "/auth/verification";
+    private static final String CARDS = "/cards";
+    private static final String TRANSFER = "/transfer";
     public static String token;
 
     public static void login(String login, String password) {
@@ -17,7 +22,7 @@ public class ApiHandler {
                 .contentType("application/json")
                 .body("{\"login\": \"" + login + "\", \"password\": \"" + password + "\"}")
                 .when()
-                .post(BASE_URL + "/auth")
+                .post(BASE_URL + LOGIN)
                 .then()
                 .statusCode(200);
     }
@@ -27,7 +32,7 @@ public class ApiHandler {
                 .contentType("application/json")
                 .body("{\"login\": \"" + login + "\", \"code\": \"" + verificationCode + "\"}")
                 .when()
-                .post(BASE_URL + "/auth/verification")
+                .post(BASE_URL + VERIFICATION)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -36,27 +41,41 @@ public class ApiHandler {
         token = verificationResponse.path("token");
     }
 
+
     public static List<Map<String, Object>> getCards() {
-            return given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + token)
-                    .when()
-                    .get(BASE_URL + "/cards")
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .jsonPath()
-                    .getList("$");
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + token);
+
+        Response response = given()
+                .contentType("application/json")
+                .headers(headers)
+                .when()
+                .get(BASE_URL + CARDS)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+
+        return response.jsonPath().getList("$");
     }
 
-    public static void makeTransfer(String fromCard, String toCard, int amount){
+
+    public static void makeTransfer(int amount, String fromCard, String toCard) {
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("from", fromCard);
+        requestBody.put("to", toCard);
+        requestBody.put("amount", amount);
+
         given()
                 .contentType("application/json")
                 .header("Authorization", "Bearer " + token)
-                .body("{\"from\": \"" + fromCard + "\", \"to\": \"" + toCard + "\", \"amount\": " + amount + "}")
+                .body(requestBody)
+                .log().all()
                 .when()
-                .post(BASE_URL + "/transfer")
+                .post(BASE_URL + TRANSFER)
                 .then()
+                .log().all()
                 .statusCode(200);
     }
 }

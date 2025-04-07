@@ -1,6 +1,6 @@
 package ru.netology.apisql.data;
 
-import lombok.Value;
+import lombok.*;
 
 public class DataHandler {
 
@@ -16,6 +16,21 @@ public class DataHandler {
     public static class AuthInfo {
         String login;
         String password;
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CardsInfo {
+        String id;
+        String number;
+        Integer balance;
+    }
+
+    @Value
+    public static class User {
+
     }
 }
 

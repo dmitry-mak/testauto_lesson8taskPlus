@@ -1,5 +1,6 @@
 package ru.netology.apisql;
 
+import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -79,6 +80,7 @@ public class ApiTest {
 
     @Test
     public void shouldTransferBetweenCardsTest() {
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
         DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
 
@@ -86,32 +88,63 @@ public class ApiTest {
         String verificationCode = SqlHandler.getVerificationCode();
         ApiHandler.verify(user.getLogin(), verificationCode);
 
-        List<Map<String, Object>> cards = ApiHandler.getCards();
+        List<DataHandler.CardsInfo> cards = SqlHandler.getUserCards();
+        System.out.println("Initial cards data:" + cards);
 
-        String cardNumber1 = (String) cards.get(0).get("number");
-        String cardNumber2 = (String) cards.get(1).get("number");
-        int initialBalance1 = (int) cards.get(0).get("balance");
-        int initialBalance2 = (int) cards.get(1).get("balance");
+        String cardNumber1 = cards.get(0).getNumber();
+        String cardNumber2 = cards.get(1).getNumber();
+        int initialBalance1 = cards.get(0).getBalance();
+        int initialBalance2 = cards.get(1).getBalance();
+
         long startTransactionsCount = SqlHandler.getTransactionsCount();
 
         int amountToTransfer = 5357;
-        ApiHandler.makeTransfer(cardNumber2, cardNumber1, amountToTransfer);
+        ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
 
-        List<Map<String, Object>> cardsAfterTransfer = ApiHandler.getCards();
-        int balance1AfterTransfer = (int) cardsAfterTransfer.get(0).get("balance");
-        int balance2AfterTransfer = (int) cardsAfterTransfer.get(1).get("balance");
+        List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
+        System.out.println("Cards after transfer: " + cardsAfterTransfer);
+
+        int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
+        int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
         long finalTransactionsCount = SqlHandler.getTransactionsCount();
         int lastTransactionAmount = SqlHandler.getLastTransactionAmount();
-
-//        Так как балансы карт не меняются, добавлены дополнительные проверки,чтобы убедиться, в какой части программы возникает баг:
-//        - количество транзакций должно увеличиваться на 1: это демонстрирует, что транзакция была зарегистрирована системой
-//        - сумма перевода совпадает с суммой последней зарегистрированной транзакции
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(initialBalance2 - amountToTransfer, balance2AfterTransfer),
                 () -> Assertions.assertEquals(initialBalance1 + amountToTransfer, balance1AfterTransfer),
                 () -> Assertions.assertEquals(startTransactionsCount + 1, finalTransactionsCount),
                 () -> Assertions.assertEquals(amountToTransfer, lastTransactionAmount / 100)
+        );
+    }
+
+    @Test
+    public void shouldNotTransferOverBalanceTest() {
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
+        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
+
+        ApiHandler.login(user.getLogin(), user.getPassword());
+        String verificationCode = SqlHandler.getVerificationCode();
+        ApiHandler.verify(user.getLogin(), verificationCode);
+
+        List<DataHandler.CardsInfo> cards = SqlHandler.getUserCards();
+
+        String cardNumber1 = cards.get(0).getNumber();
+        String cardNumber2 = cards.get(1).getNumber();
+        int initialBalance1 = cards.get(0).getBalance();
+        int initialBalance2 = cards.get(1).getBalance();
+
+        int amountToTransfer = initialBalance1 + 10000;
+        ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
+
+        List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
+
+        int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
+        int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(initialBalance2 - amountToTransfer, balance2AfterTransfer),
+                () -> Assertions.assertEquals(initialBalance1 + amountToTransfer, balance1AfterTransfer)
         );
     }
 }
