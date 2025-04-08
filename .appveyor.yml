@@ -11,23 +11,16 @@ image: Ubuntu2004
 # Установка зависимостей
 install:
   # Обновление пакетов и установка необходимых инструментов
-  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk curl
-
   - sh: |
-      curl -fsSL https://get.docker.com -o get-docker.sh
-      sudo sh get-docker.sh
-      sudo usermod -aG docker  $USER
-      newgrp docker
+      sudo apt-get update
+      sudo apt-get install -y openjdk-11-jdk docker.io docker-compose
 
   # Запуск Docker Compose для базы данных
-  - name: Container start
+  - name: Start database container
     sh: |
       sudo systemctl start docker
-      docker-compose up -d
-
-  # Ожидание полного запуска контейнера
-  - name: Waiting for container start
-    sh: sleep 30
+      docker-compose -f ./docker-compose.yml up -d
+      sleep 30 # Ждём запуска контейнера
 
   # Выдача прав на gradlew
   - chmod +x gradlew
