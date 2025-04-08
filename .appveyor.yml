@@ -10,10 +10,22 @@ image: Ubuntu2004
 
 # Установка зависимостей
 install:
-  # Обновление пакетов и установка необходимых инструментов
-  - sh: |
-      sudo apt-get update
-      sudo apt-get install -y openjdk-11-jdk docker.io docker-compose
+  # Обновление пакетов и установка Java
+  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk curl
+
+  # Установка Docker через официальный скрипт
+  - name: Install Docker
+    sh: |
+      curl -fsSL https://get.docker.com -o get-docker.sh
+      sudo sh get-docker.sh
+      sudo usermod -aG docker $USER
+      newgrp docker
+
+  # Установка Docker Compose
+  - name: Install Docker Compose
+    sh: |
+      sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
 
   # Запуск Docker Compose для базы данных
   - name: Start database container
@@ -31,7 +43,7 @@ build_script:
   - sh: java -jar ./artifacts/app-deadline.jar &
 
   # Запуск тестов через Gradle
-  - sh: ./gradlew test --info -Dselenide.headless=true
+  - sh: ./gradlew test --info
 
 # Кэширование зависимостей
 cache:
