@@ -7,19 +7,14 @@ branches:
 image: Ubuntu2004
 
 install:
-  # Запуск контейнера через Docker Compose
+
   - sh: docker-compose up -d
-  # Ожидание запуска контейнера
   - sh: sleep 30
-  # Установка JDK 11
   - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk
-  # Выдача прав на gradlew
   - sh: chmod +x gradlew
 
 build_script:
-  # Запуск SUT в фоне
   - sh: java -jar ./artifacts/app-deadline.jar &
-  # Запуск тестов
   - sh: ./gradlew test --info
 
 cache:
