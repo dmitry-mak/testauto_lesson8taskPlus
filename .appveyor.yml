@@ -1,21 +1,30 @@
 version: 1.0.{build}
 
+branches:
+  only:
+    - main
+
 image: Ubuntu2004
 
-environment:
-  JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-
 install:
-  - sudo apt-get update
-  - sudo apt-get install -y openjdk-11-jdk
-  - chmod +x gradlew
+  # Запуск контейнера через Docker Compose
+  - sh: docker-compose up -d
+  # Ожидание запуска контейнера
+  - sh: sleep 30
+  # Установка JDK 11
+  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk
+  # Выдача прав на gradlew
+  - sh: chmod +x gradlew
 
 build_script:
-  - ./gradlew test --info
-
-test_script:
-  - java -jar ./artifacts/app-deadline.jar &
-  - sleep 60  # Wait for the application to start
+  # Запуск SUT в фоне
+  - sh: java -jar ./artifacts/app-deadline.jar &
+  # Запуск тестов
+  - sh: ./gradlew test --info
 
 cache:
-  - $HOME/.gradle
+  - .gradle -> .gradle
+
+artifacts:
+  - path: build/reports/tests/test
+    name: test-reports
