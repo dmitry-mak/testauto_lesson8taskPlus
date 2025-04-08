@@ -19,7 +19,6 @@ install:
       curl -fsSL https://get.docker.com -o get-docker.sh
       sudo sh get-docker.sh
       sudo usermod -aG docker $USER
-      newgrp docker
 
   # Установка Docker Compose
   - name: Install Docker Compose
@@ -31,7 +30,7 @@ install:
   - name: Start database container
     sh: |
       sudo systemctl start docker
-      docker-compose -f ./docker-compose.yml up -d
+      sudo docker-compose -f ./docker-compose.yml up -d
       sleep 30 # Ждём запуска контейнера
 
   # Выдача прав на gradlew
