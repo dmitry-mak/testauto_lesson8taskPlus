@@ -19,10 +19,10 @@ public class ApiTest {
         SqlHandler.cleanAuthCodesTable();
     }
 
-//    @AfterAll
-//    public static void cleanUpAll() {
-//        SqlHandler.cleanAllTables();
-//    }
+    @AfterAll
+    public static void cleanUpAll() {
+        SqlHandler.cleanAllTables();
+    }
 
     @Test
     public void shouldLoginAndVerifyTest() {
@@ -81,7 +81,6 @@ public class ApiTest {
         ApiHandler.verify(user.getLogin(), verificationCode);
 
         List<DataHandler.CardsInfo> cards = SqlHandler.getUserCards();
-        System.out.println("Initial cards data:" + cards);
 
         String cardNumber1 = cards.get(0).getNumber();
         String cardNumber2 = cards.get(1).getNumber();
@@ -94,7 +93,6 @@ public class ApiTest {
         ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
 
         List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
-        System.out.println("Cards after transfer: " + cardsAfterTransfer);
 
         int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
         int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();

@@ -1,6 +1,7 @@
 package ru.netology.apisql.data;
 
 import io.restassured.response.Response;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +16,8 @@ public class ApiHandler {
     private static final String VERIFICATION = "/auth/verification";
     private static final String CARDS = "/cards";
     private static final String TRANSFER = "/transfer";
+    @Getter
     private static String token;
-
-    public static String getToken() {
-        return token;
-    }
 
     public static void login(String login, String password) {
 
@@ -103,7 +101,7 @@ public class ApiHandler {
                 .when()
                 .post(BASE_URL + TRANSFER)
                 .then()
-                .log().all();
-//                .statusCode(200);
+                .log().all()
+                .statusCode(200);
     }
 }
