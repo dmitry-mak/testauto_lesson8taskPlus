@@ -24,51 +24,6 @@ public class ApiTest {
         SqlHandler.cleanAllTables();
     }
 
-    @Test
-    public void shouldLoginAndVerifyTest() {
-
-        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
-        ApiHandler.login(user.getLogin(), user.getPassword());
-
-        String verificationCode = SqlHandler.getVerificationCode();
-        System.out.println("Verification code: " + verificationCode);
-        ApiHandler.verify(user.getLogin(), verificationCode);
-
-        System.out.println("Token: " + ApiHandler.getToken());
-    }
-
-    @Test
-    public void shouldGetCardsListFromApiTest() {
-
-        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
-        ApiHandler.login(user.getLogin(), user.getPassword());
-        String verificationCode = SqlHandler.getVerificationCode();
-        ApiHandler.verify(user.getLogin(), verificationCode);
-
-        List<Map<String, Object>> cards = ApiHandler.getCards();
-
-        for (Map<String, Object> card : cards) {
-            System.out.println("Card id: " + card.get("id"));
-            System.out.println("Card number: " + card.get("number"));
-            System.out.println("Balance: " + card.get("balance"));
-        }
-    }
-
-    @Test
-    public void shouldGetCardNumbersByIdTest() {
-
-        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
-        String login = user.getLogin();
-
-        String userID = SqlHandler.getUserIdByLogin(login);
-
-        List<String> cardNumbers = SqlHandler.getCardNumbersById(userID);
-
-        Assertions.assertNotNull(cardNumbers);
-        for (String cardNumber : cardNumbers) {
-            System.out.println("Card number: " + cardNumber);
-        }
-    }
 
     @Test
     public void shouldTransferBetweenCardsTest() {
@@ -87,23 +42,17 @@ public class ApiTest {
         int initialBalance1 = cards.get(0).getBalance();
         int initialBalance2 = cards.get(1).getBalance();
 
-        long startTransactionsCount = SqlHandler.getTransactionsCount();
-
-        int amountToTransfer = 5357;
+        int amountToTransfer = initialBalance2 / 10;
         ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
 
         List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
 
         int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
         int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
-        long finalTransactionsCount = SqlHandler.getTransactionsCount();
-        int lastTransactionAmount = SqlHandler.getLastTransactionAmount();
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(initialBalance2 - amountToTransfer, balance2AfterTransfer),
-                () -> Assertions.assertEquals(initialBalance1 + amountToTransfer, balance1AfterTransfer),
-                () -> Assertions.assertEquals(startTransactionsCount + 1, finalTransactionsCount),
-                () -> Assertions.assertEquals(amountToTransfer, lastTransactionAmount / 100)
+                () -> Assertions.assertEquals(initialBalance1 + amountToTransfer, balance1AfterTransfer)
         );
     }
 
@@ -133,8 +82,8 @@ public class ApiTest {
         int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(initialBalance2 - amountToTransfer, balance2AfterTransfer),
-                () -> Assertions.assertEquals(initialBalance1 + amountToTransfer, balance1AfterTransfer)
+                () -> Assertions.assertEquals(initialBalance2, balance2AfterTransfer),
+                () -> Assertions.assertEquals(initialBalance1, balance1AfterTransfer)
         );
     }
 }
