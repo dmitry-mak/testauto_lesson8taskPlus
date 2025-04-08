@@ -15,7 +15,7 @@ build_script:
 
 test_script:
   - java -jar ./artifacts/app-deadline.jar &
-  - sleep 30  # Wait for the application to start
+  - sleep 60  # Wait for the application to start
 
 cache:
   - $HOME/.gradle
