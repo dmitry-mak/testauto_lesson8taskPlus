@@ -1,54 +1,21 @@
 version: 1.0.{build}
 
-# Триггеры
-branches:
-  only:
-    - main
-
-# Операционная система
 image: Ubuntu2004
 
-# Установка зависимостей
+environment:
+  JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+
 install:
-  # Обновление пакетов и установка Java
-  - sh: sudo apt-get update && sudo apt-get install -y openjdk-11-jdk curl
-
-  # Установка Docker через официальный скрипт
-  - name: Install Docker
-    sh: |
-      curl -fsSL https://get.docker.com -o get-docker.sh
-      sudo sh get-docker.sh
-      sudo usermod -aG docker $USER
-
-  # Установка Docker Compose
-  - name: Install Docker Compose
-    sh: |
-      sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      sudo chmod +x /usr/local/bin/docker-compose
-
-  # Запуск Docker Compose для базы данных
-  - name: Start database container
-    sh: |
-      sudo systemctl start docker
-      sudo docker-compose -f ./docker-compose.yml up -d
-      sleep 30 # Ждём запуска контейнера
-
-  # Выдача прав на gradlew
+  - sudo apt-get update
+  - sudo apt-get install -y openjdk-11-jdk
   - chmod +x gradlew
 
-# Скрипт сборки
 build_script:
-  # Запуск SUT (системы под тестом)
-  - sh: java -jar ./artifacts/app-deadline.jar &
+  - ./gradlew test --info
 
-  # Запуск тестов через Gradle
-  - sh: ./gradlew test --info
+test_script:
+  - java -jar ./artifacts/app-deadline.jar &
+  - sleep 30  # Wait for the application to start
 
-# Кэширование зависимостей
 cache:
-  - .gradle -> .gradle
-
-# Отправка артефактов (если нужны)
-artifacts:
-  - path: build/reports/tests/test
-    name: test-reports
+  - $HOME/.gradle
