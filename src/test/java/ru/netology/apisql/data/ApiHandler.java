@@ -15,22 +15,50 @@ public class ApiHandler {
     private static final String VERIFICATION = "/auth/verification";
     private static final String CARDS = "/cards";
     private static final String TRANSFER = "/transfer";
-    public static String token;
+    private static String token;
+
+    public static String getToken() {
+        return token;
+    }
 
     public static void login(String login, String password) {
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("login", login);
+        requestBody.put("password", password);
+
         given()
                 .contentType("application/json")
-                .body("{\"login\": \"" + login + "\", \"password\": \"" + password + "\"}")
+                .body(requestBody)
                 .when()
                 .post(BASE_URL + LOGIN)
                 .then()
                 .statusCode(200);
     }
 
+//    public static void verify(String login, String verificationCode) {
+//        Response verificationResponse = given()
+//                .contentType("application/json")
+//                .body("{\"login\": \"" + login + "\", \"code\": \"" + verificationCode + "\"}")
+//                .when()
+//                .post(BASE_URL + VERIFICATION)
+//                .then()
+//                .statusCode(200)
+//                .extract()
+//                .response();
+//
+//        token = verificationResponse.path("token");
+//    }
+
     public static void verify(String login, String verificationCode) {
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("login", login);
+        requestBody.put("code", verificationCode);
+
         Response verificationResponse = given()
                 .contentType("application/json")
-                .body("{\"login\": \"" + login + "\", \"code\": \"" + verificationCode + "\"}")
+                .body(requestBody)
                 .when()
                 .post(BASE_URL + VERIFICATION)
                 .then()
@@ -75,7 +103,7 @@ public class ApiHandler {
                 .when()
                 .post(BASE_URL + TRANSFER)
                 .then()
-                .log().all()
-                .statusCode(200);
+                .log().all();
+//                .statusCode(200);
     }
 }

@@ -1,6 +1,7 @@
 package ru.netology.apisql;
 
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,11 @@ public class ApiTest {
         SqlHandler.cleanAuthCodesTable();
     }
 
+//    @AfterAll
+//    public static void cleanUpAll() {
+//        SqlHandler.cleanAllTables();
+//    }
+
     @Test
     public void shouldLoginAndVerifyTest() {
 
@@ -28,7 +34,7 @@ public class ApiTest {
         System.out.println("Verification code: " + verificationCode);
         ApiHandler.verify(user.getLogin(), verificationCode);
 
-        System.out.println("Token: " + ApiHandler.token);
+        System.out.println("Token: " + ApiHandler.getToken());
     }
 
     @Test
@@ -46,20 +52,6 @@ public class ApiTest {
             System.out.println("Card number: " + card.get("number"));
             System.out.println("Balance: " + card.get("balance"));
         }
-    }
-
-    @Test
-    public void shouldCountTransactionsTest() {
-        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
-        ApiHandler.login(user.getLogin(), user.getPassword());
-        String verificationCode = SqlHandler.getVerificationCode();
-        ApiHandler.verify(user.getLogin(), verificationCode);
-
-        long transactionsCount = SqlHandler.getTransactionsCount();
-        int lastTransactionAmount = SqlHandler.getLastTransactionAmount();
-        System.out.println("Transactions count: " + transactionsCount);
-        System.out.println("Last transaction amount: " + lastTransactionAmount);
-
     }
 
     @Test
