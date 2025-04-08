@@ -3,7 +3,7 @@ services:
     image: mysql:8.0.34
 #    restart: always
     ports:
-      - '3306:3306'
+      - '3307:3306'
     volumes:
       #    подключает схему к проекту
       - ./schema:/docker-entrypoint-initdb.d
