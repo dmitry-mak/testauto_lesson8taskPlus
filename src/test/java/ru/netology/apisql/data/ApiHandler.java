@@ -34,19 +34,6 @@ public class ApiHandler {
                 .statusCode(200);
     }
 
-//    public static void verify(String login, String verificationCode) {
-//        Response verificationResponse = given()
-//                .contentType("application/json")
-//                .body("{\"login\": \"" + login + "\", \"code\": \"" + verificationCode + "\"}")
-//                .when()
-//                .post(BASE_URL + VERIFICATION)
-//                .then()
-//                .statusCode(200)
-//                .extract()
-//                .response();
-//
-//        token = verificationResponse.path("token");
-//    }
 
     public static void verify(String login, String verificationCode) {
 
