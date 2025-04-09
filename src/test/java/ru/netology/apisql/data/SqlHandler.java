@@ -71,6 +71,7 @@ public class SqlHandler {
         var deleteUsersSql = "DELETE FROM users;";
         var deleteAuthCodesSql = "DELETE FROM auth_codes;";
         var deleteCardTransactionsSQL = "DELETE FROM card_transactions;";
+
         try (var connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/app", "app", "pass")) {
             runner.update(connection, deleteAuthCodesSql);
             runner.update(connection, deleteCardTransactionsSQL);

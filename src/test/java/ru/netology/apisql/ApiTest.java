@@ -19,6 +19,7 @@ public class ApiTest {
         SqlHandler.cleanAuthCodesTable();
     }
 
+
     @AfterAll
     public static void cleanUpAll() {
         SqlHandler.cleanAllTables();
