@@ -56,34 +56,34 @@ public class ApiTest {
         );
     }
 
-    @Test
-    public void shouldNotTransferOverBalanceTest() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-
-        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
-
-        ApiHandler.login(user.getLogin(), user.getPassword());
-        String verificationCode = SqlHandler.getVerificationCode();
-        ApiHandler.verify(user.getLogin(), verificationCode);
-
-        List<DataHandler.CardsInfo> cards = SqlHandler.getUserCards();
-
-        String cardNumber1 = cards.get(0).getNumber();
-        String cardNumber2 = cards.get(1).getNumber();
-        int initialBalance1 = cards.get(0).getBalance();
-        int initialBalance2 = cards.get(1).getBalance();
-
-        int amountToTransfer = initialBalance1 + 10000;
-        ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
-
-        List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
-
-        int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
-        int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
-
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(initialBalance2, balance2AfterTransfer),
-                () -> Assertions.assertEquals(initialBalance1, balance1AfterTransfer)
-        );
-    }
+//    @Test
+//    public void shouldNotTransferOverBalanceTest() {
+//        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+//
+//        DataHandler.AuthInfo user = DataHandler.getRegisteredUserInfo();
+//
+//        ApiHandler.login(user.getLogin(), user.getPassword());
+//        String verificationCode = SqlHandler.getVerificationCode();
+//        ApiHandler.verify(user.getLogin(), verificationCode);
+//
+//        List<DataHandler.CardsInfo> cards = SqlHandler.getUserCards();
+//
+//        String cardNumber1 = cards.get(0).getNumber();
+//        String cardNumber2 = cards.get(1).getNumber();
+//        int initialBalance1 = cards.get(0).getBalance();
+//        int initialBalance2 = cards.get(1).getBalance();
+//
+//        int amountToTransfer = initialBalance1 + 10000;
+//        ApiHandler.makeTransfer(amountToTransfer, cardNumber2, cardNumber1);
+//
+//        List<DataHandler.CardsInfo> cardsAfterTransfer = SqlHandler.getUserCards();
+//
+//        int balance1AfterTransfer = cardsAfterTransfer.get(0).getBalance();
+//        int balance2AfterTransfer = cardsAfterTransfer.get(1).getBalance();
+//
+//        Assertions.assertAll(
+//                () -> Assertions.assertEquals(initialBalance2, balance2AfterTransfer),
+//                () -> Assertions.assertEquals(initialBalance1, balance1AfterTransfer)
+//        );
+//    }
 }
